@@ -1,0 +1,13 @@
+  version: '4.4.6'
+  services:
+    database:
+      image: 'mongo:4.4.6'
+      container_name: 'my-mongo-container'
+      volumes:
+        - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+        - ./mongo_db:/data/db
+      ports:
+        - '27017:27017'
+      restart: on-failure
+      env_file:
+        - ../.env

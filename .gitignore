@@ -1,1 +1,7 @@
 .idea
+dist
+node_modules
+.env
+./mongo-db/mongo-volume
+./node_modules
+./mongo-db
