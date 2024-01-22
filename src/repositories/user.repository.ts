@@ -1,3 +1,5 @@
+import { FilterQuery } from "mongoose";
+
 import {IUser} from "../interfaces/user.interface";
 import {User} from "../models/user.model";
 
@@ -11,8 +13,7 @@ class UserRepository {
     }
 
     public async create(body: Partial<IUser>): Promise<IUser> {
-        const user =await User.create(body);
-        return user;
+        return await User.create(body);
     }
 
     public async deleteById(id: String): Promise<void> {
@@ -21,6 +22,14 @@ class UserRepository {
 
     public async updateById(id: String, body: Partial<IUser>): Promise<IUser> {
         return User.findByIdAndUpdate(id,body,{returnDocument:"after"});
+    }
+    public async getOneByParams(params:FilterQuery<IUser>):Promise<IUser>{
+        return await User.findOne(params);
+    }
+
+    public async compare(password:string,userPassword:string):Promise<boolean>{
+
+        return true;
     }
 }
 
