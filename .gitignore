@@ -5,3 +5,5 @@ node_modules
 ./mongo-db/mongo-volume
 ./node_modules
 ./mongo-db
+mongo-volume/
+mongo_db/

@@ -27,10 +27,6 @@ class UserRepository {
         return await User.findOne(params);
     }
 
-    public async compare(password:string,userPassword:string):Promise<boolean>{
-
-        return true;
-    }
 }
 
 export const userRepository = new UserRepository();

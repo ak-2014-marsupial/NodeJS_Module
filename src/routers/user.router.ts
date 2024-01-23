@@ -2,12 +2,16 @@ import { Router} from "express";
 
 import {userController} from "../controllers/user.controller";
 import {commonMiddleware} from "../middlewares/common.middleware";
+import {authMiddleware} from "../middlewares/auth.middleware"
 
 const router = Router();
 
-router.get("", userController.getAll);
+router.get("/", userController.getAll);
+
+router.get("/me",authMiddleware.checkAccessToken,userController.getMe);
+router.put("/me",authMiddleware.checkAccessToken,userController.updateMe);
+router.delete("/me",authMiddleware.checkAccessToken,userController.deleteMe);
+
 router.get("/:id", commonMiddleware.isIdValid, userController.getById);
-router.delete("/:id",commonMiddleware.isIdValid,userController.deleteById);
-router.put("/:id",commonMiddleware.isIdValid,userController.updateById);
 
 export const userRouter = router;

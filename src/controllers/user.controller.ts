@@ -2,6 +2,7 @@ import {NextFunction, Request, Response} from "express";
 
 import {userService} from "../services/user.service";
 import {IUser} from "../interfaces/user.interface";
+import {ITokenPayload} from "../interfaces/token.interface";
 
 class UserController {
     public async getAll(req: Request, res: Response, next: NextFunction) {
@@ -16,7 +17,7 @@ class UserController {
 
     public async getById(req: Request, res: Response, next: NextFunction): Promise<Response<IUser>> {
         try {
-            const id:string = req.params.id;
+            const id: string = req.params.id;
 
             const user = await userService.getById(id);
             return res.status(201).json({data: user})
@@ -27,26 +28,41 @@ class UserController {
     }
 
 
-    public async deleteById(req: Request, res: Response, next: NextFunction): Promise<void> {
+    public async getMe(req: Request, res: Response, next: NextFunction) {
         try {
-            const id:string = req.params.id;
-            await userService.deleteById(id);
-            res.sendStatus(204)
+            const jwtPayload = req.res.locals.jwtPayload as ITokenPayload;
+            const user = await userService.getMe(jwtPayload);
+
+            res.status(200).json({data: user});
         } catch (e) {
             next(e);
         }
     }
 
-    public async updateById(req: Request, res: Response, next: NextFunction): Promise<Response<IUser>> {
-     try{
-         const id= req.params.id;
-         const body= req.body;
-         const user = await userService.updateById(id,body);
-         return res.status(201).json(user);
-     }catch(e){
-         next(e);
-     }
+    public async updateMe(req: Request, res: Response, next: NextFunction) {
+        try {
+            const jwtPayload = req.res.locals.jwtPayload as ITokenPayload;
+            const body = req.body as Partial<IUser>;
+            const user = await userService.updateMe(jwtPayload, body);
+
+            res.status(201).json(user);
+        } catch (e) {
+            next(e)
+        }
     }
+
+    public async deleteMe(req: Request, res: Response, next: NextFunction) {
+        try {
+            const jwtPayload = req.res.locals.jwtPayload as ITokenPayload;
+            console.log("controller:",jwtPayload);
+            await userService.deleteMe(jwtPayload);
+
+            res.sendStatus(204);
+        } catch (e) {
+            next(e);
+        }
+    }
+
 }
 
 export const userController = new UserController();
