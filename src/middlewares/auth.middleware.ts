@@ -7,6 +7,7 @@ class AuthMiddleware {
     public async checkAccessToken(req: Request, res: Response, next: NextFunction) {
         try {
             const tokenString = req.get("Authorization");
+
             if (!tokenString) {
                 throw new ApiError("No Token", 401);
             }
@@ -18,7 +19,6 @@ class AuthMiddleware {
                 throw new ApiError("Token not valid", 401);
             }
             req.res.locals.jwtPayload = jwtPayload;
-            console.log(jwtPayload);
             next();
         } catch (e) {
             next(e);
@@ -35,6 +35,7 @@ class AuthMiddleware {
             const jwtPayload = tokenService.checkToken(refreshToken, "refresh");
 
             const entity = await tokenRepository.getOneBy({refreshToken});
+            
             if (!entity) {
                 throw new ApiError("Token not valid", 401);
             }
