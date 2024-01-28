@@ -2,6 +2,7 @@ import {userRepository} from "../repositories/user.repository";
 import {ApiError} from "../errors/api.error";
 import {IUser} from "../interfaces/user.interface";
 import {ITokenPayload} from "../interfaces/token.interface";
+import {tokenRepository} from "../repositories/token.repository";
 
 class UserService {
     public async getAll() {
@@ -32,13 +33,15 @@ class UserService {
         return await userRepository.updateById(jwtPayload.userId, body);
     }
 
-    public async deleteMe(jwtPayload:ITokenPayload):Promise<void>{
-        console.log("sevice:",jwtPayload);
-        const user =await userRepository.getById(jwtPayload.userId);
-        if(!user){
-            throw new ApiError("User not found",403);
+    public async deleteMe(jwtPayload: ITokenPayload): Promise<void> {
+        const userFromDb = await userRepository.getById(jwtPayload.userId);
+        if (!userFromDb) {
+            throw new ApiError("User not found", 403);
         }
-        await userRepository.deleteById(jwtPayload.userId);
+        await Promise.all([
+            userRepository.deleteById(jwtPayload.userId),
+            tokenRepository.deleteManyBy(jwtPayload.userId),
+        ])
     }
 
 }

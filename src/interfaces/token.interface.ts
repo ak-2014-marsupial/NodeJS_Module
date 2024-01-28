@@ -1,4 +1,5 @@
 import {Types} from "mongoose";
+import { ERole } from "../enums/role.enum";
 
 export interface ITokensPair {
     accessToken: string;
@@ -9,6 +10,7 @@ export interface ITokensPair {
 
 export interface ITokenPayload {
     userId: string;
+    role:ERole;
 }
 
 export interface IToken extends ITokensPair {

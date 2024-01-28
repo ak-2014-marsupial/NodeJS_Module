@@ -1,51 +1,60 @@
 import {Request, Response, NextFunction} from "express";
+
 import {ApiError} from "../errors/api.error";
 import {tokenRepository} from "../repositories/token.repository";
 import {tokenService} from "../services/token.service";
+import { ETokenType } from "../enums/EToken-type.enum";
+import { ERole } from "../enums/role.enum";
 
 class AuthMiddleware {
-    public async checkAccessToken(req: Request, res: Response, next: NextFunction) {
-        try {
-            const tokenString = req.get("Authorization");
+    public checkAccessToken(role: ERole) {
+        return async function (req: Request, res: Response, next: NextFunction) {
+            try {
+                const tokenString = req.get("Authorization");
 
-            if (!tokenString) {
-                throw new ApiError("No Token", 401);
-            }
-            const accessToken = tokenString.split("Bearer ")[1];
-            const jwtPayload = tokenService.checkToken(accessToken, "access");
+                if (!tokenString) {
+                    throw new ApiError("No Token", 401);
+                }
+                const accessToken = tokenString.split("Bearer ")[1];
+                const jwtPayload = tokenService.checkToken(accessToken, ETokenType.ACCESS, role);
 
-            const entity = await tokenRepository.getOneBy({accessToken});
-            if (!entity) {
-                throw new ApiError("Token not valid", 401);
+                const entity = await tokenRepository.getOneBy({accessToken});
+                if (!entity) {
+                    throw new ApiError("Token not valid", 401);
+                }
+                req.res.locals.jwtPayload = jwtPayload;
+
+                next();
+            } catch (e) {
+                next(e);
             }
-            req.res.locals.jwtPayload = jwtPayload;
-            next();
-        } catch (e) {
-            next(e);
         }
     }
 
-    public async checkRefreshToken(req: Request, res: Response, next: NextFunction) {
-        try {
-            const tokenString = req.get("Authorization");
-            if (!tokenString) {
-                throw new ApiError("No Token", 401);
-            }
-            const refreshToken = tokenString.split("Bearer ")[1];
-            const jwtPayload = tokenService.checkToken(refreshToken, "refresh");
+    public checkRefreshToken(role: ERole) {
+        return async function (req: Request, res: Response, next: NextFunction) {
+            try {
+                const tokenString = req.get("Authorization");
+                if (!tokenString) {
+                    throw new ApiError("No Token", 401);
+                }
+                const refreshToken = tokenString.split("Bearer ")[1];
+                const jwtPayload = tokenService.checkToken(refreshToken, ETokenType.REFRESH, role);
 
-            const entity = await tokenRepository.getOneBy({refreshToken});
-            
-            if (!entity) {
-                throw new ApiError("Token not valid", 401);
-            }
-            req.res.locals.jwtPayload = jwtPayload;
-            req.res.locals.refreshToken = refreshToken;
+                const entity = await tokenRepository.getOneBy({refreshToken});
 
-            next();
-        } catch (e) {
-            next(e)
+                if (!entity) {
+                    throw new ApiError("Token not valid", 401);
+                }
+                req.res.locals.jwtPayload = jwtPayload;
+                req.res.locals.refreshToken = refreshToken;
+
+                next();
+            } catch (e) {
+                next(e)
+            }
         }
+
     }
 }
 
