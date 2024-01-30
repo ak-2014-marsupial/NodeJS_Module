@@ -1,4 +1,5 @@
-import {IToken} from "../interfaces/token.interface";
+import {IActionToken, IToken} from "../interfaces/token.interface";
+import { ActionToken } from "../models/action.model";
 import {Token} from "../models/token.model";
 
 class TokenRepository {
@@ -14,8 +15,17 @@ class TokenRepository {
         await Token.deleteMany({_userId: userId});
     }
 
+    public async createActionToken(data:Partial<IActionToken>){
+        return await ActionToken.create(data)
+    }
+    public async getActionTokenByParams(params:Partial<IActionToken>){
+        return await ActionToken.findOne(params);
+    }
     public async deleteOneByParams(params: Partial<IToken>): Promise<void> {
         Token.deleteOne(params);
+    }
+    public async deleteActionTokenByParams(params:Partial<IActionToken>){
+        return await ActionToken.deleteOne(params);
     }
 }
 

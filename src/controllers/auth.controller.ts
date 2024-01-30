@@ -6,22 +6,23 @@ import {ILogin} from "../interfaces/auth.interface";
 import {ITokenPayload} from "../interfaces/token.interface";
 
 class AuthController {
-    public async signUpAdmin(req:Request,res:Response,next:NextFunction){
-        try{
-            const body=req.body as Partial<IUser>;
-            const createdUser=await authService.signUpAdmin(body);
+    public async signUpAdmin(req: Request, res: Response, next: NextFunction) {
+        try {
+            const body = req.body as Partial<IUser>;
+            const createdUser = await authService.signUpAdmin(body);
 
-            return res.json({data:createdUser});
-        }catch(e){
+            return res.json({data: createdUser});
+        } catch (e) {
             next(e);
         }
     }
-    public async signInAdmin(req:Request,res:Response,next:NextFunction){
-        try{
-            const body=req.body as ILogin;
-            const jwtTokens=await authService.signInAdmin(body);
-            return res.json({data:jwtTokens});
-        }catch(e){
+
+    public async signInAdmin(req: Request, res: Response, next: NextFunction) {
+        try {
+            const body = req.body as ILogin;
+            const jwtTokens = await authService.signInAdmin(body);
+            return res.json({data: jwtTokens});
+        } catch (e) {
             next(e);
         }
     }
@@ -53,6 +54,29 @@ class AuthController {
             const refreshToken = req.res.locals.refreshToken as string;
             const jwtTokens = await authService.refresh(jwtPayload, refreshToken);
             return res.json({data: jwtTokens})
+        } catch (e) {
+            next(e)
+        }
+    }
+
+    public async forgotPassword(req: Request, res: Response, next: NextFunction) {
+        try {
+            const user = req.res.locals as IUser;
+            await authService.forgotPassword(user);
+
+            return res.json("OK");
+        } catch (e) {
+            next(e)
+        }
+    }
+
+    public async setForgotPassword(req: Request, res: Response, next: NextFunction) {
+        try {
+            const token = req.params.token;
+            const newPassword = req.body.newPassword;
+
+            await authService.setForgotPassword(newPassword, token);
+            return res.json("OK");
         } catch (e) {
             next(e)
         }
